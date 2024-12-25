@@ -25,3 +25,5 @@ jobs:
       uses: mickem/gh-action-bump-maven-version@v1.0.0
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
