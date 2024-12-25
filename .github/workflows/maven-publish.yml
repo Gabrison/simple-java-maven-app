@@ -43,8 +43,8 @@ jobs:
     - name: Push Docker image
       run: |
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-        docker tag my-app:latest my-username/my-app:latest
-        docker push my-username/my-app:latest
+        docker tag my-app:latest gabrielsonnino/java-app:latest
+        docker push gabrielsonnino/java-app:latest
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
