@@ -56,7 +56,7 @@ jobs:
     - name: Deploy container on EC2 host
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ vars.HOST_IP }}
+        host: ${{ vars.SSH_HOST }}
         username: ${{ vars.HOST_USER }}
         key: ${{ secrets.HOST_PRIVATE_KEY }}
         port: 22
