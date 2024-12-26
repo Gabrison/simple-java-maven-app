@@ -66,3 +66,4 @@ jobs:
           docker rm my-app || true
           docker run -d --name my-app --restart always -p 8080:8080 ${{ env.DOCKER_IMAGE }}
 
+
