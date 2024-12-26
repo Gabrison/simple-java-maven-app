@@ -49,4 +49,16 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
+     # Step 6: Push Docker image to DockerHub
+     - name: deploy docker image
+       run:
+       env:
+            PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
+            HOSTNAME: ${{variables.SSH_HOST}}
+            USER_NAME: ${{variables.USER_NAME}}
+       run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
 
+              #start the deploy
+              echo "hello"	
