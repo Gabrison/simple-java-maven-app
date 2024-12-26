@@ -65,7 +65,4 @@ jobs:
 
           # Start a new container
           docker run -d --name java-app -p 8080:8080 gabrielsonnino/java-app:latest
-
-          # Verify the container is running
-          docker ps
         EOF
