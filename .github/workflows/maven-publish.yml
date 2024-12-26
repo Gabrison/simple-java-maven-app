@@ -1,66 +1,21 @@
-on:
-  push:
-    branches: [ "master" ]
-
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-
-    steps:
-    # Step 1: Checkout code
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    # Step 2: Set up JDK 17
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-
-    # Step 3: Bump version
-    - name: Bump version
-      id: bump
-      uses: mickem/gh-action-bump-maven-version@v1.0.0
-
-    # Step 4: Build the Maven application
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    # Step 5: Build Docker image
-    - name: Build Docker image
-      run: |
-        docker build -t my-app:latest .
-
-    # Step 6: Push Docker image to DockerHub
-    - name: Push Docker image
-      run: |
-        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-        docker tag my-app:latest gabrielsonnino/java-app:latest
-        docker push gabrielsonnino/java-app:latest
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-
-    # Step 7: Deploy Docker image to EC2
+    # Step 6: Deploy Docker image to EC2
     - name: Deploy Docker image
       env:
         PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
-        HOSTNAME: ${{ vars.SSH_HOST }}
-        USERNAME: ${{ vars.USER_NAME }}
+        HOSTNAME: ${{ vars.HOSTNAME }}
+        USERNAME: ${{ vars.USERNAME }}
       run: |
         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
         ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} << EOF
-          echo "hello"
-          # Add your deploy commands here
+          # Pull the latest Docker image
           docker pull gabrielsonnino/java-app:latest
-	  #docker stop java-app || true
-	  #docker rm java-app || true
-          docker run --name java-app -p 8080:8080 gabrielsonnino/java-app:latest
+
+          # Stop and remove the existing container if it exists
+          docker stop java-app || true
+          docker rm java-app || true
+
+          # Start a new container
+          docker run -d --name java-app -p 8080:8080 gabrielsonnino/java-app:latest
+
         EOF
 
