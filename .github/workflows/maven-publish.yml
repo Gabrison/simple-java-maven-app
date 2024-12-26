@@ -51,8 +51,8 @@ jobs:
     - name: Deploy Docker image
       env:
         PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
-        HOSTNAME: ${{ secrets.SSH_HOST }}
-        USERNAME: ${{ secrets.USER_NAME }}
+        HOSTNAME: ${{ vars.SSH_HOST }}
+        USERNAME: ${{ vars.USER_NAME }}
       run: |
         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
         ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} << EOF
