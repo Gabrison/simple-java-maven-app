@@ -57,8 +57,8 @@ jobs:
       uses: appleboy/ssh-action@master
       with:
         host: ${{ vars.SSH_HOST }}
-        username: ${{ vars.HOST_USER }}
-        key: ${{ secrets.HOST_PRIVATE_KEY }}
+        username: ${{ vars.USER_NAME }}
+        key: ${{ secrets.DEPLOY_KEY }}
         port: 22
         script: |
           docker pull ${{ env.DOCKER_IMAGE }}
