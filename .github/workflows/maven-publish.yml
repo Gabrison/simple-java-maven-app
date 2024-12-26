@@ -55,9 +55,22 @@ jobs:
       run: |
         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
         ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} << EOF
-          echo "hello"
-          # Add your deploy commands here
+          # Check if the container is running
+          if [ \$(docker ps -q -f name=java-app) ]; then
+            echo "Stopping and removing existing container..."
+            docker stop java-app
+            docker rm java-app
+          fi
+
+          # Pull the latest Docker image
           docker pull gabrielsonnino/java-app:latest
-          docker run --name java-app -p 8080:8080 gabrielsonnino/java-app:latest
+
+          # Start a new container
+          echo "Starting new container..."
+          docker run -d --name java-app -p 8080:8080 gabrielsonnino/java-app:latest
+
+          # Verify the container is running
+          echo "Verifying container..."
+          docker ps
         EOF
 
