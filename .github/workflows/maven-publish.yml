@@ -8,7 +8,7 @@ env:
   DOCKER_IMAGE: gabrielsonnino/java-app:latest
 
 jobs:
-  # CI Job: Build and Push Docker Image
+  # CI Job: Build, Version Bump, and Push Docker Image
   ci:
     runs-on: ubuntu-latest
 
@@ -24,11 +24,16 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # Step 3: Build the Maven application
+    # Step 3: Bump version
+    - name: Bump version
+      id: bump
+      uses: mickem/gh-action-bump-maven-version@v1.0.0
+
+    # Step 4: Build the Maven application
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-    # Step 4: Build Docker image
+    # Step 5: Build Docker image
     - name: Build Docker image
       run: |
         docker build -t my-app:latest .
@@ -37,7 +42,7 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-    # Step 5: Push Docker image to DockerHub
+    # Step 6: Push Docker image to DockerHub
     - name: Push Docker image
       run: |
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -65,5 +70,4 @@ jobs:
           docker stop my-app || true
           docker rm my-app || true
           docker run --name my-app --restart always -p 8080:8080 ${{ env.DOCKER_IMAGE }}
-
 
