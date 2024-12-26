@@ -36,7 +36,6 @@ jobs:
     - name: Build Docker image
       run: |
         docker build -t my-app:latest .
-
     # Step 6: Push Docker image to DockerHub
     - name: Push Docker image
       run: |
@@ -51,18 +50,14 @@ jobs:
     - name: Deploy Docker image
       env:
         PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
-        HOSTNAME: ${{ vars.HOSTNAME }}
-        USERNAME: ${{ vars.USERNAME }}
+        HOSTNAME: ${{ vars.SSH_HOST }}
+        USERNAME: ${{ vars.USER_NAME }}
       run: |
         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
         ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} << EOF
-          # Pull the latest Docker image
+          echo "hello"
+          # Add your deploy commands here
           docker pull gabrielsonnino/java-app:latest
-
-          # Stop and remove the existing container if it exists
-          docker stop java-app || true
-          docker rm java-app || true
-
-          # Start a new container
-          docker run -d --name java-app -p 8080:8080 gabrielsonnino/java-app:latest
+          docker run --name java-app -p 8080:8080 gabrielsonnino/java-app:latest
         EOF
+
