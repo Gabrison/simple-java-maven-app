@@ -3,7 +3,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -11,7 +11,8 @@ jobs:
 
     steps:
     # Step 1: Checkout code
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     # Step 2: Set up JDK 17
     - name: Set up JDK 17
@@ -19,8 +20,6 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-        settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     # Step 3: Bump version
     - name: Bump version
@@ -37,7 +36,7 @@ jobs:
     - name: Build Docker image
       run: |
         docker build -t my-app:latest .
-      
+
     # Step 6: Push Docker image to DockerHub
     - name: Push Docker image
       run: |
@@ -48,16 +47,18 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-     # Step 6: Push Docker image to DockerHub
-     - name: deploy docker image
-       run:
-       env:
-            PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
-            HOSTNAME: ${{variables.SSH_HOST}}
-            USER_NAME: ${{variables.USER_NAME}}
-       run: |
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+    # Step 7: Deploy Docker image to EC2
+    - name: Deploy Docker image
+      env:
+        PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
+        HOSTNAME: ${{ secrets.SSH_HOST }}
+        USERNAME: ${{ secrets.USER_NAME }}
+      run: |
+        echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+        ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} << EOF
+          echo "hello"
+          # Add your deploy commands here
+          docker pull gabrielsonnino/java-app:latest
+          docker run -d --name java-app -p 8080:8080 gabrielsonnino/java-app:latest
+        EOF
 
-              #start the deploy
-              echo "hello"	
