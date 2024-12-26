@@ -64,6 +64,6 @@ jobs:
           docker pull ${{ env.DOCKER_IMAGE }}
           docker stop my-app || true
           docker rm my-app || true
-          docker run -d --name my-app --restart always -p 8080:8080 ${{ env.DOCKER_IMAGE }}
+          docker run --name my-app --restart always -p 8080:8080 ${{ env.DOCKER_IMAGE }}
 
 
