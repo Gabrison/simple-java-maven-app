@@ -59,8 +59,8 @@ jobs:
           echo "hello"
           # Add your deploy commands here
           docker pull gabrielsonnino/java-app:latest
-	  docker stop java-app || true
-	  docker rm java-app || true
+	  #docker stop java-app || true
+	  #docker rm java-app || true
           docker run --name java-app -p 8080:8080 gabrielsonnino/java-app:latest
         EOF
 
